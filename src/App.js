@@ -3,24 +3,25 @@ import React, { useState } from 'react';
 import MoviesList from './components/MoviesList';
 import './App.css';
 
-const dummyMovies = [
-  {
-    id: 1,
-    title: 'Some Dummy Movie',
-    openingText: 'This is the opening text of the movie',
-    releaseDate: '2021-05-18',
-  },
-  {
-    id: 2,
-    title: 'Some Dummy Movie 2',
-    openingText: 'This is the second opening text of the movie',
-    releaseDate: '2021-05-19',
-  },
-];
+// const dummyMovies = [
+//   {
+//     id: 1,
+//     title: 'Some Dummy Movie',
+//     openingText: 'This is the opening text of the movie',
+//     releaseDate: '2021-05-18',
+//   },
+//   {
+//     id: 2,
+//     title: 'Some Dummy Movie 2',
+//     openingText: 'This is the second opening text of the movie',
+//     releaseDate: '2021-05-19',
+//   },
+// ];
 
 function App() {
 
 const [movies, setMovies] = useState([]);
+const [isLoading, setIsLoading] = useState(false);
 
 // const fetchMovieHandler = () => {
 //   fetch("https://swapi.dev/api/films/")
@@ -42,12 +43,12 @@ const [movies, setMovies] = useState([]);
 // };
 
 
-function fetchMoviesHandler() {
-  fetch('https://swapi.dev/api/films/')
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
+async function fetchMoviesHandler() {
+  setIsLoading(true);
+
+  const response = await fetch('https://swapi.dev/api/films/');
+  const data = await response.json();
+    
       const transformedMovies = data.results.map((movieData) => {
         return {
           id: movieData.episode_id,
@@ -57,8 +58,8 @@ function fetchMoviesHandler() {
         };
       });
       setMovies(transformedMovies);
-    });
-};
+      setIsLoading(false)
+    };
 
   return (
     <React.Fragment>
@@ -66,7 +67,9 @@ function fetchMoviesHandler() {
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
       <section>
-        <MoviesList movies={movies} />
+        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {!isLoading && movies.length === 0 && <p>Foun no movies</p>}
+        {isLoading && <span className="loader"></span>}
       </section>
     </React.Fragment>
   );
